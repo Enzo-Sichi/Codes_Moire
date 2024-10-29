@@ -37,15 +37,19 @@ def main():
         </style>
     """, unsafe_allow_html=True)
 
-    (pattern_type, frequencies, angles, thicknesses, circle_positions, 
-    visibility_radius, window_half_size, view_mode, 
-    intensity_threshold, n_harmonics) = get_input_controls()
+    (pattern_types, frequencies, angles, thicknesses, circle_positions, 
+     visibility_radius, window_half_size, view_mode, 
+     intensity_threshold, n_harmonics) = get_input_controls()
 
     # Generate pattern and computations
     pattern_size = 700
     combined_pattern = np.ones((pattern_size, pattern_size))
-    for freq, angle, thickness,circle_position in zip(frequencies, angles, thicknesses,circle_positions):
-        combined_pattern *= create_pattern(pattern_size, freq, angle, thickness, pattern_type,circle_position)
+    
+    # Create individual patterns and combine them
+    for pattern_type, freq, angle, thickness, circle_position in zip(
+        pattern_types, frequencies, angles, thicknesses, circle_positions):
+        combined_pattern *= create_pattern(
+            pattern_size, freq, angle, thickness, pattern_type, circle_position)
     
     fourier_spectrum,abs_fourier_spectrum = compute_fourier_transform(combined_pattern, window_half_size,visibility_radius)
     inverse_fourier = compute_inverse_fourier(fourier_spectrum)

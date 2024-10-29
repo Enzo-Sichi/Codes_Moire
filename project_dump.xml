@@ -57,6 +57,122 @@ if __name__ == "__main__":
 <source>project_dump.xml</source>
 <document_content>
 <documents>
+<document index="1">
+<source>project-to-xml.py</source>
+<document_content>
+import os
+
+def create_xml_from_project(project_path):
+    """Convert a project directory into the required XML format."""
+    xml_parts = ['<documents>']
+    index = 1
+    
+    for root, _, files in os.walk(project_path):
+        for file in files:
+            # Skip common files/directories you might want to exclude
+            if any(skip in file for skip in ['.git', '__pycache__', '.pyc', '.env']):
+                continue
+                
+            file_path = os.path.join(root, file)
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                # Create relative path from project root
+                relative_path = os.path.relpath(file_path, project_path)
+                
+                xml_parts.append(f'<document index="{index}">')
+                xml_parts.append(f'<source>{relative_path}</source>')
+                xml_parts.append('<document_content>')
+                xml_parts.append(content)
+                xml_parts.append('</document_content>')
+                xml_parts.append('</document>')
+                
+                index += 1
+            except UnicodeDecodeError:
+                print(f"Skipping binary file: {file_path}")
+            except Exception as e:
+                print(f"Error processing {file_path}: {e}")
+    
+    xml_parts.append('</documents>')
+    return '\n'.join(xml_parts)
+
+# Usage
+if __name__ == "__main__":
+    project_path = input("Enter the path to your project directory: ")
+    output_path = "project_dump.xml"
+    
+    xml_content = create_xml_from_project(project_path)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(xml_content)
+        
+    print(f"XML dump created at: {output_path}")
+
+</document_content>
+</document>
+<document index="2">
+<source>project_dump.xml</source>
+<document_content>
+<documents>
+<document index="1">
+<source>project-to-xml.py</source>
+<document_content>
+import os
+
+def create_xml_from_project(project_path):
+    """Convert a project directory into the required XML format."""
+    xml_parts = ['<documents>']
+    index = 1
+    
+    for root, _, files in os.walk(project_path):
+        for file in files:
+            # Skip common files/directories you might want to exclude
+            if any(skip in file for skip in ['.git', '__pycache__', '.pyc', '.env']):
+                continue
+                
+            file_path = os.path.join(root, file)
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    
+                # Create relative path from project root
+                relative_path = os.path.relpath(file_path, project_path)
+                
+                xml_parts.append(f'<document index="{index}">')
+                xml_parts.append(f'<source>{relative_path}</source>')
+                xml_parts.append('<document_content>')
+                xml_parts.append(content)
+                xml_parts.append('</document_content>')
+                xml_parts.append('</document>')
+                
+                index += 1
+            except UnicodeDecodeError:
+                print(f"Skipping binary file: {file_path}")
+            except Exception as e:
+                print(f"Error processing {file_path}: {e}")
+    
+    xml_parts.append('</documents>')
+    return '\n'.join(xml_parts)
+
+# Usage
+if __name__ == "__main__":
+    project_path = input("Enter the path to your project directory: ")
+    output_path = "project_dump.xml"
+    
+    xml_content = create_xml_from_project(project_path)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(xml_content)
+        
+    print(f"XML dump created at: {output_path}")
+
+</document_content>
+</document>
+<document index="2">
+<source>project_dump.xml</source>
+<document_content>
+<documents>
 </documents>
 </document_content>
 </document>
@@ -671,6 +787,1711 @@ def create_frequency_vector_figure(all_vectors, base_vectors, visibility_radius,
         
         # Create red color with intensity-based opacity
         color = f'rgba(255, 0, 0, {vector["intensity"]/zero_harmonic_I+0.001})'
+        colors.append(color)
+
+    # Add vector points
+    freq_fig.add_trace(go.Scatter(
+        x=x_coords,
+        y=y_coords,
+        mode='markers+text',
+        name='Vector Sums',
+        marker=dict(color=colors, size=8, symbol='circle'),
+        text=labels,
+        hovertext=hover_texts,
+        textposition="top center"
+    ))
+
+    # Add visibility disk
+    theta = np.linspace(0, 2*np.pi, 100)
+    x_circle = visibility_radius * np.cos(theta)
+    y_circle = visibility_radius * np.sin(theta)
+    freq_fig.add_trace(go.Scatter(
+        x=x_circle, y=y_circle,
+        mode='lines',
+        name='Visibility Disk',
+        line=dict(dash='dash', color='red')
+    ))
+
+    freq_fig.update_layout(
+        width=700,
+        height=700,
+        xaxis=dict(
+            title='fx',
+            range=[-window_half_size, window_half_size],
+            zeroline=True,
+            zerolinewidth=1,
+            zerolinecolor='black',
+            scaleanchor="y",
+            scaleratio=1,
+            showgrid=True,
+            gridcolor='rgba(128, 128, 128, 0.2)'
+        ),
+        yaxis=dict(
+            title='fy',
+            range=[-window_half_size, window_half_size],
+            zeroline=True,
+            zerolinewidth=1,
+            zerolinecolor='black',
+            showgrid=True,
+            gridcolor='rgba(128, 128, 128, 0.2)'
+        ),
+        showlegend=False,
+        margin=dict(l=50, r=0, t=25, b=50),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    
+    return freq_fig
+</document_content>
+</document>
+<document index="13">
+<source>app\utils\visualization_utils.py</source>
+<document_content>
+import streamlit as st
+import plotly.graph_objects as go
+import numpy as np
+from typing import List, Tuple, Dict
+from itertools import product
+from utils.vector_utils import *
+
+def frequency_domain_visualization(all_vectors,visibility_radius): 
+    x_coords = []
+    y_coords = []
+    labels = []
+    intensities = []
+    for vector in all_vectors:
+        if not(is_within_visibility_disk(vector['vector'], visibility_radius)):
+            continue
+        x_coords.append(vector['vector'][0])
+        y_coords.append(vector['vector'][1])
+        labels.append(str(tuple(vector['coordinates'])))
+        intensities.append(vector['intensity'])
+
+        colors = ['rgba(255, 0, 0, {:.2f})'.format(intensity) for intensity in intensities]
+
+        freq_fig = go.Figure()
+        freq_fig.add_trace(go.Scatter(
+            x=x_coords,
+            y=y_coords,
+            mode='markers+text',
+            name='Vector Sums',
+            marker=dict(color=colors, size=6, symbol='circle'),
+            text=labels,
+            textposition="top center"
+        ))
+
+    # Visibility disk
+    theta = np.linspace(0, 2*np.pi, 100)
+    x_circle = visibility_radius * np.cos(theta)
+    y_circle = visibility_radius * np.sin(theta)
+    freq_fig.add_trace(go.Scatter(
+        x=x_circle, y=y_circle,
+        mode='lines',
+        name='Visibility Disk',
+        line=dict(dash='dash', color='gray')
+    ))
+        
+    # colors = ['blue', 'green', 'red', 'purple']
+    # freq_fig.add_trace(go.Scatter(
+    # x=[0, harmonic_vector[0]], 
+    # y=[0, harmonic_vector[1]],
+    # mode='lines',
+    # # name=name,
+    # line=dict(color=color, width=2),
+    # marker=dict(size=8)
+    # ))
+
+    return(freq_fig)
+</document_content>
+</document>
+<document index="14">
+<source>app\utils\__init__.py</source>
+<document_content>
+
+</document_content>
+</document>
+</documents>
+</document_content>
+</document>
+<document index="3">
+<source>README.txt</source>
+<document_content>
+
+</document_content>
+</document>
+<document index="4">
+<source>requirements.txt</source>
+<document_content>
+numpy==2.1.2
+plotly==5.24.1
+scipy==1.14.1
+streamlit==1.38.0
+
+</document_content>
+</document>
+<document index="5">
+<source>app\config.py</source>
+<document_content>
+
+</document_content>
+</document>
+<document index="6">
+<source>app\main.py</source>
+<document_content>
+import streamlit as st
+from utils.visualization_handlers import (
+    create_pattern_figure,
+    create_spectrum_figure,
+    create_frequency_vector_figure
+)
+from utils.input_controls import get_input_controls
+from utils.pattern_utils import create_pattern
+from utils.vector_utils import create_frequency_vectors, create_all_vectors
+from utils.fourier_utils import compute_fourier_transform, compute_inverse_fourier
+import numpy as np
+
+def main():
+    st.set_page_config(layout="wide", menu_items={'Get help': None, 'Report a bug': None, 'About': None})
+    
+    # Make the layout more compact by using custom CSS
+    st.markdown("""
+        <style>
+        .stSlider {
+            padding-bottom: 2px;
+        }
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0px;
+            padding: 0px;
+        }
+        .row-widget {
+            min-height: 0px;
+            padding: 0px;
+        }
+        .stRadio > label {
+            margin-bottom: 0px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    (pattern_type, frequencies, angles, thicknesses, circle_positions, 
+    visibility_radius, window_half_size, view_mode, 
+    intensity_threshold, n_harmonics) = get_input_controls()
+
+    # Generate pattern and computations
+    pattern_size = 700
+    combined_pattern = np.ones((pattern_size, pattern_size))
+    for freq, angle, thickness,circle_position in zip(frequencies, angles, thicknesses,circle_positions):
+        combined_pattern *= create_pattern(pattern_size, freq, angle, thickness, pattern_type,circle_position)
+    
+    fourier_spectrum,abs_fourier_spectrum = compute_fourier_transform(combined_pattern, window_half_size,visibility_radius)
+    inverse_fourier = compute_inverse_fourier(fourier_spectrum)
+    
+     
+    base_vectors = create_frequency_vectors(pattern_type, frequencies, angles,thicknesses)
+    all_vectors = create_all_vectors(base_vectors, n_harmonics,intensity_threshold)
+    
+    # Display visualizations based on selected mode
+    left_col, right_col = st.columns(2)
+    
+    if view_mode == "Pattern & Frequency":
+        with left_col:
+            st.markdown("##### Pattern")
+            pattern_fig = create_pattern_figure(combined_pattern)
+            st.plotly_chart(pattern_fig, use_container_width=True, config={'displayModeBar': True, 'scrollZoom': True})
+            
+        with right_col:
+            st.markdown("##### Frequency Domain")
+            freq_fig = create_frequency_vector_figure(all_vectors, base_vectors, visibility_radius, window_half_size)
+            st.plotly_chart(freq_fig, use_container_width=True)
+    else:  # Fourier Analysis mode
+        with left_col:
+            st.markdown("##### Inverse Fourier Transform")
+            inverse_fig = create_pattern_figure(inverse_fourier)
+            st.plotly_chart(inverse_fig, use_container_width=True)
+            
+        with right_col:
+            st.markdown("##### Fourier Transform")
+            fourier_fig = create_spectrum_figure(abs_fourier_spectrum, window_half_size,visibility_radius)
+            st.plotly_chart(fourier_fig, use_container_width=True)
+
+    st.write("")  # Add some space
+    st.write("")
+    # Explanation section below the visualizations
+    with st.expander("How to Use This App"):
+        st.markdown("""
+        This application helps visualize and analyze grid patterns and their frequency components. Here's how to use it:
+
+        #### Biggest Tip
+        - **The Moire effect is based on the creation of low frequency components** 
+        - **In the frequency domain, try to put the red dots as close as possible to the center with far away blue dots**
+        - That will mean that with thin patterns (high frequency) you can produce big visual effects (low frequency)            
+
+        #### Controls
+        - **Pattern Type**: Choose between different types of grid patterns
+        - **View Mode**: Switch between two visualization modes:
+            - Pattern & Frequency: Shows the actual pattern and its frequency domain representation
+            - Fourier Analysis: Shows the Fourier transform and its inverse
+        - **Grid Controls**: For each grid component:
+            - Frequency: Adjust the spacing of the grid lines
+            - Angle: Control the rotation of the grid
+        - **Visibility Radius**: Adjust the size of the visible frequency domain
+        - **Window Range**: Control the display range of the frequency domain plot
+
+        #### Visualization Modes
+        1. **Pattern & Frequency Mode**
+            - Left: Shows the actual grid pattern
+            - Right: Displays the frequency domain representation with vectors
+        
+        2. **Fourier Analysis Mode**
+            - Left: Shows the inverse Fourier transform
+            - Right: Displays the Fourier transform magnitude spectrum
+
+        #### Tips
+        - Try adjusting frequencies and angles to see how they affect the pattern
+        - Compare the frequency domain representation with the Fourier transform
+        - Experiment with different pattern types to understand their frequency components
+
+        ## Biggest Tip
+        The Moire effect is based on the creation of low frequency components. 
+        in the frequency domain, try to put the red dots as close as possible to the center with far away blue dots. 
+        That will mean that with thin patterns (high frequency) you can produce big visual effects (low frequency).
+                
+
+        """)
+
+if __name__ == "__main__":
+    main()
+</document_content>
+</document>
+<document index="7">
+<source>app\__init__.py</source>
+<document_content>
+
+</document_content>
+</document>
+<document index="8">
+<source>app\utils\fourier_utils.py</source>
+<document_content>
+import numpy as np
+from scipy.fft import fft2, ifft2, fftshift, ifftshift
+
+def apply_2d_hanning(pattern):
+    """Apply a 2D Hanning window to the pattern."""
+    rows, cols = pattern.shape
+    hanning_1d_rows = np.hanning(rows)
+    hanning_1d_cols = np.hanning(cols)
+    hanning_2d = np.outer(hanning_1d_rows, hanning_1d_cols)
+    return pattern * hanning_2d
+
+def compute_fourier_transform(pattern: np.ndarray, window_half_size: float = 100.0 , visibility_radius: float = 50.0 ) -> np.ndarray:
+    """
+    Compute the 2D Fourier transform of the pattern.
+    
+    Args:
+        pattern: Input pattern array
+        window_half_size: Half size of the frequency window for proper scaling
+    """
+    # Apply Hanning window to reduce edge effects
+    windowed_pattern = apply_2d_hanning(pattern)
+    
+    # Apply FFT and shift the zero frequency to the center
+    fourier = fftshift(fft2(windowed_pattern))
+    
+    # Get the center point
+    N = pattern.shape[0]
+    center = N // 2
+    
+    # Calculate how many pixels correspond to window_half_size
+    # Since N/2 pixels = max_frequency in the FFT output
+    # and max_frequency = pattern size/2
+    # Therefore window_half_size pixels = (window_half_size * N) / pattern_size
+    pixels = int((window_half_size * N) / (pattern.shape[0]))
+
+    #set pixel value to 0 if it is outside the visibility radius using numpy and mesh 
+    x = np.arange(-N // 2, N // 2)
+    y = np.arange(-N // 2, N // 2)
+    xx, yy = np.meshgrid(x, y)          
+    distance = np.sqrt(xx**2 + yy**2)
+    fourier_eaten = fourier.copy()
+    fourier_eaten[distance > visibility_radius] = 0
+
+    cropped_fourier = fourier[center-pixels:center+pixels, center-pixels:center+pixels] #Original fourier gets cropped
+    cropped_fourier_eaten = fourier_eaten[center-pixels:center+pixels, center-pixels:center+pixels] #Eaten fourier gets cropped
+
+    magnitude_spectrum = np.abs(cropped_fourier) # Magnitude spectrum is the absolute value of the cropped fourier
+    
+    magnitude_spectrum = (magnitude_spectrum - np.min(magnitude_spectrum)) / (  
+        np.max(magnitude_spectrum) - np.min(magnitude_spectrum))    #Increase of contrast
+    
+    return cropped_fourier_eaten,magnitude_spectrum
+
+def compute_inverse_fourier(fourier_spectrum: np.ndarray) -> np.ndarray:
+    """Compute the inverse Fourier transform."""
+    # Unshift and apply inverse FFT
+    inverse = np.real(ifft2(ifftshift(fourier_spectrum)))
+    
+    # Normalize
+    inverse = (inverse - np.min(inverse)) / (np.max(inverse) - np.min(inverse))
+    return inverse
+</document_content>
+</document>
+<document index="9">
+<source>app\utils\input_controls.py</source>
+<document_content>
+import streamlit as st
+import math
+
+def initialize_pattern_state():
+    """Initialize the session state for pattern parameters if not already present."""
+    if 'pattern_params' not in st.session_state:
+        st.session_state.pattern_params = {
+            'frequencies': [40.0] * 4,  # Store up to 4 frequencies
+            'angles': [i * (180 / 4) for i in range(4)],  # Store up to 4 angles
+            'thicknesses': [0.5] * 4,  # Store up to 4 thicknesses
+            'circle_positions': [(0, 0)] * 4,  # Store up to 4 circle positions
+            'R_values': [0.0] * 4,  # Store R values for circle positions
+            'theta_values': [0.0] * 4  # Store theta values for circle positions
+        }
+
+def get_slider_key(param_type, index):
+    """Generate a unique key for each slider"""
+    return f"{param_type}_{index}"
+
+def slider_callback(param_type, index):
+    """Update session state when slider changes"""
+    key = get_slider_key(param_type, index)
+    if key in st.session_state:
+        st.session_state.pattern_params[param_type][index] = st.session_state[key]
+
+def get_input_controls():
+    initialize_pattern_state()
+    
+    # First row: Pattern type, view mode, and intensity threshold
+    col1, col2, col3a, col3b = st.columns([1, 1.5, 1, 0.5])
+    with col1:
+        pattern_type = st.selectbox("Pattern Type", 
+            ["2 Vertical Grids", "3 Vertical Grids", "4 Vertical Grids", "2 Concentric Circles",
+            "2 Dot Grids", "3 Dot Grids", "2 Inverted Dot Grids (Intensity in frequency domain incorrect)", 
+            "3 Inverted Dot Grids (Intensity in frequency domain incorrect)))"])
+    with col2:
+        view_mode = st.radio("View Mode", 
+            ["Pattern & Frequency", "Fourier Analysis"], 
+            horizontal=True)
+    
+    is_concentric = "Concentric" in pattern_type
+    num_patterns = int(pattern_type[0])
+    slider_cols = st.columns(num_patterns + 2)
+    
+    frequencies = []
+    angles = []
+    thicknesses = []
+    circle_positions = []
+    
+    for i in range(num_patterns):
+        with slider_cols[i]:
+            st.write(f"{'Circle' if is_concentric else 'Grid'} {i+1}")
+            
+            if is_concentric:
+                # Frequency slider
+                freq_key = get_slider_key('frequencies', i)
+                frequencies.append(
+                    st.slider("Frequency", 10.0, 100.0, 
+                             value=st.session_state.pattern_params['frequencies'][i], 
+                             key=freq_key, on_change=slider_callback, 
+                             args=('frequencies', i), step=0.1)
+                )
+                
+                # Thickness slider
+                thick_key = get_slider_key('thicknesses', i)
+                thickness = st.slider("Thickness", 0.1, 0.9, 
+                                    value=st.session_state.pattern_params['thicknesses'][i], 
+                                    key=thick_key, on_change=slider_callback, 
+                                    args=('thicknesses', i), step=0.1)
+                thicknesses.append(thickness)
+                
+                if i > 0:
+                    # R slider
+                    r_key = get_slider_key('R_values', i)
+                    R = st.slider("R", 0.0, 100.0, 
+                                value=st.session_state.pattern_params['R_values'][i], 
+                                key=r_key, on_change=slider_callback, 
+                                args=('R_values', i), step=1.0)
+                    
+                    # Theta slider
+                    theta_key = get_slider_key('theta_values', i)
+                    theta = st.slider("Theta", -180.0, 180.0, 
+                                    value=st.session_state.pattern_params['theta_values'][i], 
+                                    key=theta_key, on_change=slider_callback, 
+                                    args=('theta_values', i), step=1.0)
+                    
+                    pos_x = R * math.cos(math.radians(theta))
+                    pos_y = R * math.sin(math.radians(theta))
+                    circle_positions.append((pos_x, pos_y))
+                else:
+                    circle_positions.append((0, 0))
+                angles.append(0)
+            else:
+                # Frequency slider
+                freq_key = get_slider_key('frequencies', i)
+                frequencies.append(
+                    st.slider("Frequency", 10.0, 100.0, 
+                             value=st.session_state.pattern_params['frequencies'][i], 
+                             key=freq_key, on_change=slider_callback, 
+                             args=('frequencies', i), step=0.1)
+                )
+                
+                # Angle slider
+                angle_key = get_slider_key('angles', i)
+                angle = st.slider("Angle", 0.0, 360.0, 
+                                value=st.session_state.pattern_params['angles'][i], 
+                                key=angle_key, on_change=slider_callback, 
+                                args=('angles', i), step=1.0)
+                angles.append(angle)
+                
+                # Thickness slider
+                thick_key = get_slider_key('thicknesses', i)
+                thickness = st.slider("Thickness", 0.1, 0.9, 
+                                    value=st.session_state.pattern_params['thicknesses'][i], 
+                                    key=thick_key, on_change=slider_callback, 
+                                    args=('thicknesses', i), step=0.1)
+                thicknesses.append(thickness)
+                
+                circle_positions.append((0, 0))
+    
+    # Visibility and window controls (these don't need persistence)
+    with slider_cols[-2]:
+        st.write("Visibility")
+        n_harmonics = st.slider("Number of Harmonics (1 for complex patterns)", 1, 10, 4, 1)
+        intensity_threshold = st.slider("Intensity Threshold (above 0.1 for complex patterns)", 
+                                      0.0, 0.5, 0.05, 0.01)
+    
+    with slider_cols[-1]:
+        st.write("Window")
+        window_half_size = st.slider("Range", 5.0, 200.0, 100.0, 5.0)
+        visibility_radius = st.slider("Radius", 1.0, 200.0, 100.0, 1.0)
+
+    return (pattern_type, frequencies, angles, thicknesses, circle_positions, 
+            visibility_radius, window_half_size, view_mode, intensity_threshold, n_harmonics)
+</document_content>
+</document>
+<document index="10">
+<source>app\utils\pattern_utils.py</source>
+<document_content>
+import numpy as np
+
+def create_pattern(size: int, frequency: float, angle: float, thickness: float, 
+                  pattern_type: str, circle_position: tuple = (0, 0)) -> np.ndarray:
+    x = np.linspace(-size/2, size/2, size)
+    y = np.linspace(-size/2, size/2, size)
+    X, Y = np.meshgrid(x, y)
+    
+    if 'Concentric' in pattern_type:
+        # Existing concentric circle logic...
+        X_shifted = X - circle_position[0]
+        Y_shifted = Y - circle_position[1]
+        R = np.sqrt(X_shifted**2 + Y_shifted**2)
+        period = size / frequency
+        return (R % period) < (period * (1-thickness))
+    else:
+        theta = np.radians(angle)
+        X_rot = X * np.cos(theta) + Y * np.sin(theta)
+        Y_rot = -X * np.sin(theta) + Y * np.cos(theta)
+        
+        if 'Dot' in pattern_type:
+            pattern = ((X_rot % (size/frequency) < (size/frequency) * (1-thickness)) & 
+                      (Y_rot % (size/frequency) < (size/frequency) * (1-thickness)))
+            return ~pattern if 'Inverted' in pattern_type else pattern
+        else:
+            return X_rot % (size/frequency) < (size/frequency) * (1-thickness)
+</document_content>
+</document>
+<document index="11">
+<source>app\utils\vector_utils.py</source>
+<document_content>
+import streamlit as st
+import plotly.graph_objects as go
+import numpy as np
+from typing import List, Tuple, Dict
+from itertools import product
+
+def calculate_fourier_coefficient(harmonic: int, thickness: float) -> float:
+    """
+    Calculate the Fourier coefficient magnitude for a given harmonic and pattern type.
+    
+    Args:
+        harmonic: The harmonic number
+        thickness: The thickness parameter (between 0 and 1)
+        pattern_type: 'grid' or 'dot'
+    
+    Returns:
+        float: The magnitude of the Fourier coefficient
+    """
+    tau_T = 1-thickness
+    if harmonic == 0:
+        return tau_T  # DC component
+    
+    # For non-zero harmonics
+    return np.abs((1.0 / (np.pi * harmonic)) * np.sin(harmonic * np.pi * tau_T))
+
+def calculate_fourier_coefficient(harmonic: int, thickness: float, inverted: bool = False) -> float:
+    """
+    Calculate the Fourier coefficient magnitude for a given harmonic and pattern type.
+    
+    Args:
+        harmonic: The harmonic number
+        thickness: The thickness parameter (between 0 and 1)
+        inverted: Whether to calculate coefficients for inverted pattern
+    
+    Returns:
+        float: The magnitude of the Fourier coefficient
+    """
+    tau_T = 1-thickness
+    
+    if inverted:
+        # For inverted patterns, we need to flip the DC component and negate other harmonics
+        if harmonic == 0:
+            return 1 - tau_T  # Inverted DC component
+        else:
+            # For non-zero harmonics, phase is shifted by π
+            return -np.abs((1.0 / (np.pi * harmonic)) * np.sin(harmonic * np.pi * tau_T))
+    else:
+        # Original coefficient calculation
+        if harmonic == 0:
+            return tau_T
+        return np.abs((1.0 / (np.pi * harmonic)) * np.sin(harmonic * np.pi * tau_T))
+
+def create_frequency_vectors(pattern_type: str, frequencies: List[float], 
+                           angles: List[float], thicknesses: List[float]) -> List[Dict]:
+    """
+    Create base frequency vectors with proper Fourier coefficients.
+    """
+    vectors = []
+    is_inverted = 'Inverted' in pattern_type
+    
+    for i, (f, theta, thickness) in enumerate(zip(frequencies, angles, thicknesses)):
+        x = f * np.cos(np.radians(theta))
+        y = f * np.sin(np.radians(theta))
+        base_vector = np.array([x, y])
+        
+        if 'Dot' in pattern_type:
+            perp_vector = np.array([-y, x])
+            base_intensity = calculate_fourier_coefficient(1, thickness, is_inverted)
+            
+            vectors.append({
+                'vector': base_vector,
+                'index': i,
+                'intensity': base_intensity,
+                'pattern_type': pattern_type,
+                'direction': 'horizontal',
+                'base_vector': True,
+                'thickness': thickness,
+                'inverted': is_inverted
+            })
+            vectors.append({
+                'vector': perp_vector,
+                'index': i,
+                'intensity': base_intensity,
+                'pattern_type': pattern_type,
+                'direction': 'vertical',
+                'base_vector': True,
+                'thickness': thickness,
+                'inverted': is_inverted
+            })
+        else:
+            base_intensity = calculate_fourier_coefficient(1, thickness, is_inverted)
+            vectors.append({
+                'vector': base_vector,
+                'index': i,
+                'intensity': base_intensity,
+                'pattern_type': pattern_type,
+                'direction': None,
+                'base_vector': True,
+                'thickness': thickness,
+                'inverted': is_inverted
+            })
+    return vectors
+
+def zero_harmonic_Intensity(base_vectors: List[Dict]) -> float:
+    zero_harmonic_I = 1.0
+    for base_vector in base_vectors:
+        zero_harmonic_I *= calculate_fourier_coefficient(0, base_vector['thickness'], 
+                                                       base_vector.get('inverted', False))
+    return zero_harmonic_I
+
+def create_all_vectors(base_vectors: List[Dict], nHarmonics: int,
+                       intensity_ratio_threshold: float) -> List[Dict]:
+    """
+    Create all harmonic vector combinations with correct Fourier coefficients.
+    """
+    all_vectors = []
+    direction_number = len(base_vectors)
+    
+    # Generate all possible combinations of harmonics
+    harmonic_range = range(-nHarmonics, nHarmonics + 1)
+    harmonic_combinations = product(harmonic_range, repeat=direction_number)
+    
+    zero_harmonic_I = zero_harmonic_Intensity(base_vectors)
+
+    for combination in harmonic_combinations:
+        vector = {
+            'vector': np.array([0.0, 0.0]),
+            'coordinates': [],
+            'intensity': 1.0,
+            'pattern_type': "",
+            'direction': None,
+            'base_vector': False
+        }
+        add_vector = True
+        # Calculate combined vector and intensity
+        for harmonic, base_vector in zip(combination, base_vectors):
+            coef = calculate_fourier_coefficient(harmonic, base_vector['thickness'])
+            vector['intensity'] *= coef
+        
+            if vector['intensity'] < intensity_ratio_threshold * zero_harmonic_I:
+                add_vector = False
+                break
+            # Add to position vector
+            vector['vector'] += harmonic * base_vector['vector']
+            vector['coordinates'].append(harmonic)
+
+            vector['pattern_type'] = base_vector['pattern_type']
+        
+        # Check if this is a base vector (only one non-zero harmonic)
+        if vector['coordinates'].count(0) == direction_number - 1:
+            vector['base_vector'] = True
+        if add_vector:    
+            all_vectors.append(vector)
+    
+    return all_vectors
+
+def is_within_visibility_disk(vector: np.ndarray, disk_radius: float) -> bool:
+    return np.linalg.norm(vector) <= disk_radius
+</document_content>
+</document>
+<document index="12">
+<source>app\utils\visualization_handlers.py</source>
+<document_content>
+import numpy as np
+import plotly.graph_objects as go
+import streamlit as st
+from utils.vector_utils import create_frequency_vectors, create_all_vectors, is_within_visibility_disk,zero_harmonic_Intensity
+from utils.pattern_utils import create_pattern
+from utils.fourier_utils import compute_fourier_transform, compute_inverse_fourier
+
+def create_pattern_figure(pattern):
+    fig = go.Figure(data=go.Heatmap(
+        z=1 - pattern,  
+        colorscale='Greys',
+        showscale=False  # Hide colorbar
+    ))
+    fig.update_layout(
+        width=700,  # Increased size
+        height=700,  # Increased size
+        xaxis=dict(showticklabels=False, showgrid=False, scaleanchor="y", scaleratio=1),
+        yaxis=dict(showticklabels=False, showgrid=False),
+        margin=dict(l=0, r=0, t=25, b=0),  # Minimal margins, small top margin for title
+        paper_bgcolor='rgba(0,0,0,0)',  # Transparent background
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def create_spectrum_figure(spectrum, window_half_size,visibility_radius):
+    # Create frequency axes
+    N = spectrum.shape[0]
+    freq_step = (2 * window_half_size) / N
+    frequencies = np.arange(-window_half_size, window_half_size, freq_step)
+    
+    magnitude_spectrum = np.abs(spectrum)
+    magnitude_spectrum = np.log1p(magnitude_spectrum)
+    magnitude_spectrum = (magnitude_spectrum - np.min(magnitude_spectrum)) / (
+        np.max(magnitude_spectrum) - np.min(magnitude_spectrum))
+    
+
+
+    fig = go.Figure(data=go.Heatmap(
+        z=magnitude_spectrum,
+        x=frequencies,
+        y=frequencies,
+        colorscale='Viridis',
+        showscale=False
+    ))
+    
+            # Add visibility disk
+    if visibility_radius < 0.85*window_half_size:
+        theta = np.linspace(0, 2*np.pi, 100)
+        x_circle = visibility_radius * np.cos(theta)
+        y_circle = visibility_radius * np.sin(theta)
+        fig.add_trace(go.Scatter(
+            x=x_circle, y=y_circle,
+            mode='lines',
+            name='Visibility Disk',
+            line=dict(dash='dash', color='red')
+        ))
+    # else:
+    #         fig.add_annotation(
+    #     x=0,  # You can customize where the text appears
+    #     y=-window_half_size+10,
+    #     text="Visibility radius is too large for the current window size.",
+    #     showarrow=False,
+    #     font=dict(size=14, color="red")
+    # )
+
+    fig.update_layout(
+        width=700,
+        height=700,
+        xaxis=dict(
+            title='fx',
+            showgrid=True,
+            scaleanchor="y", 
+            scaleratio=1,
+            gridcolor='rgba(128, 128, 128, 0.2)',
+            zeroline=True,
+            zerolinewidth=2,
+            zerolinecolor='rgba(128, 128, 128, 0.5)'
+        ),
+        yaxis=dict(
+            title='fy',
+            showgrid=True,
+            gridcolor='rgba(128, 128, 128, 0.2)',
+            zeroline=True,
+            zerolinewidth=2,
+            zerolinecolor='rgba(128, 128, 128, 0.5)'
+        ),
+        margin=dict(l=50, r=0, t=25, b=50),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def get_pattern_color(index, pattern_type):
+    # Define a color palette
+    colors = ['rgb(31, 119, 180)', 'rgb(255, 127, 14)', 
+             'rgb(44, 160, 44)', 'rgb(214, 0, 200)', 
+             'rgb(148, 103, 189)', 'rgb(140, 86, 75)', 
+             'rgb(230, 190, 147)']
+
+    return colors[index]
+
+def create_frequency_vector_figure(all_vectors, base_vectors, visibility_radius, window_half_size):
+    freq_fig = go.Figure()
+    
+    # First, draw harmonic lines of the base vectors.
+    for vector in base_vectors:
+        
+        angle = np.arctan2(vector['vector'][1], vector['vector'][0])
+        length = window_half_size * 2  # Make lines span the entire window
+        
+        x1 = -length * np.cos(angle)
+        y1 = -length * np.sin(angle)
+        x2 = length * np.cos(angle)
+        y2 = length * np.sin(angle)
+        
+        color = get_pattern_color(vector['index'], vector['pattern_type'])
+
+        # Add the line
+        freq_fig.add_trace(go.Scatter(
+            x=[x1, x2],
+            y=[y1, y2],
+            mode='lines',
+            line=dict(color=color, width=3),  # Very thin lines
+            opacity=1,  
+            hoverinfo='skip'
+        ))
+    
+    # Then add vector points
+    x_coords = []
+    y_coords = []
+    labels = []
+    hover_texts = []
+    colors = []
+    zero_harmonic_I = zero_harmonic_Intensity(base_vectors)
+
+    for vector in all_vectors:
+        if (not (is_within_visibility_disk(vector['vector'], visibility_radius)) and  vector['base_vector'] == False):
+            continue
+
+        x_coords.append(vector['vector'][0])
+        y_coords.append(vector['vector'][1])
+        labels.append(str(tuple(vector['coordinates'])))  # Only coordinates for text display
+        hover_texts.append(f"Intensity: {vector['intensity']/zero_harmonic_I:.2f}")  # Intensity for hover
+        
+        # Create red color with intensity-based opacity
+        if vector['base_vector']:
+            color = f'rgba(0, 0, 0, {vector["intensity"]/zero_harmonic_I+0.001})'
+        else:
+            color = f'rgba(255, 0, 0, {vector["intensity"]/zero_harmonic_I+0.001})'
+        colors.append(color)
+
+    # Add vector points
+    freq_fig.add_trace(go.Scatter(
+        x=x_coords,
+        y=y_coords,
+        mode='markers+text',
+        name='Vector Sums',
+        marker=dict(color=colors, size=8, symbol='circle'),
+        text=labels,
+        hovertext=hover_texts,
+        textposition="top center"
+    ))
+
+    # Add visibility disk
+    theta = np.linspace(0, 2*np.pi, 100)
+    x_circle = visibility_radius * np.cos(theta)
+    y_circle = visibility_radius * np.sin(theta)
+    freq_fig.add_trace(go.Scatter(
+        x=x_circle, y=y_circle,
+        mode='lines',
+        name='Visibility Disk',
+        line=dict(dash='dash', color='red')
+    ))
+
+    freq_fig.update_layout(
+        width=700,
+        height=700,
+        xaxis=dict(
+            title='fx',
+            range=[-window_half_size, window_half_size],
+            zeroline=True,
+            zerolinewidth=1,
+            zerolinecolor='black',
+            scaleanchor="y",
+            scaleratio=1,
+            showgrid=True,
+            gridcolor='rgba(128, 128, 128, 0.2)'
+        ),
+        yaxis=dict(
+            title='fy',
+            range=[-window_half_size, window_half_size],
+            zeroline=True,
+            zerolinewidth=1,
+            zerolinecolor='black',
+            showgrid=True,
+            gridcolor='rgba(128, 128, 128, 0.2)'
+        ),
+        showlegend=False,
+        margin=dict(l=50, r=0, t=25, b=50),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    
+    return freq_fig
+</document_content>
+</document>
+<document index="13">
+<source>app\utils\visualization_utils.py</source>
+<document_content>
+import streamlit as st
+import plotly.graph_objects as go
+import numpy as np
+from typing import List, Tuple, Dict
+from itertools import product
+from utils.vector_utils import *
+
+def frequency_domain_visualization(all_vectors,visibility_radius): 
+    x_coords = []
+    y_coords = []
+    labels = []
+    intensities = []
+    for vector in all_vectors:
+        if not(is_within_visibility_disk(vector['vector'], visibility_radius)):
+            continue
+        x_coords.append(vector['vector'][0])
+        y_coords.append(vector['vector'][1])
+        labels.append(str(tuple(vector['coordinates'])))
+        intensities.append(vector['intensity'])
+
+        colors = ['rgba(255, 0, 0, {:.2f})'.format(intensity) for intensity in intensities]
+
+        freq_fig = go.Figure()
+        freq_fig.add_trace(go.Scatter(
+            x=x_coords,
+            y=y_coords,
+            mode='markers+text',
+            name='Vector Sums',
+            marker=dict(color=colors, size=6, symbol='circle'),
+            text=labels,
+            textposition="top center"
+        ))
+
+    # Visibility disk
+    theta = np.linspace(0, 2*np.pi, 100)
+    x_circle = visibility_radius * np.cos(theta)
+    y_circle = visibility_radius * np.sin(theta)
+    freq_fig.add_trace(go.Scatter(
+        x=x_circle, y=y_circle,
+        mode='lines',
+        name='Visibility Disk',
+        line=dict(dash='dash', color='gray')
+    ))
+        
+    # colors = ['blue', 'green', 'red', 'purple']
+    # freq_fig.add_trace(go.Scatter(
+    # x=[0, harmonic_vector[0]], 
+    # y=[0, harmonic_vector[1]],
+    # mode='lines',
+    # # name=name,
+    # line=dict(color=color, width=2),
+    # marker=dict(size=8)
+    # ))
+
+    return(freq_fig)
+</document_content>
+</document>
+<document index="14">
+<source>app\utils\__init__.py</source>
+<document_content>
+
+</document_content>
+</document>
+</documents>
+</document_content>
+</document>
+<document index="3">
+<source>README.txt</source>
+<document_content>
+
+</document_content>
+</document>
+<document index="4">
+<source>requirements.txt</source>
+<document_content>
+numpy==2.1.2
+plotly==5.24.1
+scipy==1.14.1
+streamlit==1.38.0
+
+</document_content>
+</document>
+<document index="5">
+<source>app\config.py</source>
+<document_content>
+
+</document_content>
+</document>
+<document index="6">
+<source>app\main.py</source>
+<document_content>
+import streamlit as st
+from utils.visualization_handlers import (
+    create_pattern_figure,
+    create_spectrum_figure,
+    create_frequency_vector_figure
+)
+from utils.input_controls import get_input_controls
+from utils.pattern_utils import create_pattern
+from utils.vector_utils import create_frequency_vectors, create_all_vectors
+from utils.fourier_utils import compute_fourier_transform, compute_inverse_fourier
+import numpy as np
+
+def main():
+    st.set_page_config(layout="wide", menu_items={'Get help': None, 'Report a bug': None, 'About': None})
+    
+    # Make the layout more compact by using custom CSS
+    st.markdown("""
+        <style>
+        .stSlider {
+            padding-bottom: 2px;
+        }
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0px;
+            padding: 0px;
+        }
+        .row-widget {
+            min-height: 0px;
+            padding: 0px;
+        }
+        .stRadio > label {
+            margin-bottom: 0px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    (pattern_types, frequencies, angles, thicknesses, circle_positions, 
+     visibility_radius, window_half_size, view_mode, 
+     intensity_threshold, n_harmonics) = get_input_controls()
+
+    # Generate pattern and computations
+    pattern_size = 700
+    combined_pattern = np.ones((pattern_size, pattern_size))
+    
+    # Create individual patterns and combine them
+    for pattern_type, freq, angle, thickness, circle_position in zip(
+        pattern_types, frequencies, angles, thicknesses, circle_positions):
+        combined_pattern *= create_pattern(
+            pattern_size, freq, angle, thickness, pattern_type, circle_position)
+    
+    fourier_spectrum,abs_fourier_spectrum = compute_fourier_transform(combined_pattern, window_half_size,visibility_radius)
+    inverse_fourier = compute_inverse_fourier(fourier_spectrum)
+    
+     
+    base_vectors = create_frequency_vectors(pattern_type, frequencies, angles,thicknesses)
+    all_vectors = create_all_vectors(base_vectors, n_harmonics,intensity_threshold)
+    
+    # Display visualizations based on selected mode
+    left_col, right_col = st.columns(2)
+    
+    if view_mode == "Pattern & Frequency":
+        with left_col:
+            st.markdown("##### Pattern")
+            pattern_fig = create_pattern_figure(combined_pattern)
+            st.plotly_chart(pattern_fig, use_container_width=True, config={'displayModeBar': True, 'scrollZoom': True})
+            
+        with right_col:
+            st.markdown("##### Frequency Domain")
+            freq_fig = create_frequency_vector_figure(all_vectors, base_vectors, visibility_radius, window_half_size)
+            st.plotly_chart(freq_fig, use_container_width=True)
+    else:  # Fourier Analysis mode
+        with left_col:
+            st.markdown("##### Inverse Fourier Transform")
+            inverse_fig = create_pattern_figure(inverse_fourier)
+            st.plotly_chart(inverse_fig, use_container_width=True)
+            
+        with right_col:
+            st.markdown("##### Fourier Transform")
+            fourier_fig = create_spectrum_figure(abs_fourier_spectrum, window_half_size,visibility_radius)
+            st.plotly_chart(fourier_fig, use_container_width=True)
+
+    st.write("")  # Add some space
+    st.write("")
+    # Explanation section below the visualizations
+    with st.expander("How to Use This App"):
+        st.markdown("""
+        This application helps visualize and analyze grid patterns and their frequency components. Here's how to use it:
+
+        #### Biggest Tip
+        - **The Moire effect is based on the creation of low frequency components** 
+        - **In the frequency domain, try to put the red dots as close as possible to the center with far away blue dots**
+        - That will mean that with thin patterns (high frequency) you can produce big visual effects (low frequency)            
+
+        #### Controls
+        - **Pattern Type**: Choose between different types of grid patterns
+        - **View Mode**: Switch between two visualization modes:
+            - Pattern & Frequency: Shows the actual pattern and its frequency domain representation
+            - Fourier Analysis: Shows the Fourier transform and its inverse
+        - **Grid Controls**: For each grid component:
+            - Frequency: Adjust the spacing of the grid lines
+            - Angle: Control the rotation of the grid
+        - **Visibility Radius**: Adjust the size of the visible frequency domain
+        - **Window Range**: Control the display range of the frequency domain plot
+
+        #### Visualization Modes
+        1. **Pattern & Frequency Mode**
+            - Left: Shows the actual grid pattern
+            - Right: Displays the frequency domain representation with vectors
+        
+        2. **Fourier Analysis Mode**
+            - Left: Shows the inverse Fourier transform
+            - Right: Displays the Fourier transform magnitude spectrum
+
+        #### Tips
+        - Try adjusting frequencies and angles to see how they affect the pattern
+        - Compare the frequency domain representation with the Fourier transform
+        - Experiment with different pattern types to understand their frequency components
+
+        ## Biggest Tip
+        The Moire effect is based on the creation of low frequency components. 
+        in the frequency domain, try to put the red dots as close as possible to the center with far away blue dots. 
+        That will mean that with thin patterns (high frequency) you can produce big visual effects (low frequency).
+                
+
+        """)
+
+if __name__ == "__main__":
+    main()
+</document_content>
+</document>
+<document index="7">
+<source>app\__init__.py</source>
+<document_content>
+
+</document_content>
+</document>
+<document index="8">
+<source>app\utils\fourier_utils.py</source>
+<document_content>
+import numpy as np
+from scipy.fft import fft2, ifft2, fftshift, ifftshift
+
+def apply_2d_hanning(pattern):
+    """Apply a 2D Hanning window to the pattern."""
+    rows, cols = pattern.shape
+    hanning_1d_rows = np.hanning(rows)
+    hanning_1d_cols = np.hanning(cols)
+    hanning_2d = np.outer(hanning_1d_rows, hanning_1d_cols)
+    return pattern * hanning_2d
+
+def compute_fourier_transform(pattern: np.ndarray, window_half_size: float = 100.0 , visibility_radius: float = 50.0 ) -> np.ndarray:
+    """
+    Compute the 2D Fourier transform of the pattern.
+    
+    Args:
+        pattern: Input pattern array
+        window_half_size: Half size of the frequency window for proper scaling
+    """
+    # Apply Hanning window to reduce edge effects
+    windowed_pattern = apply_2d_hanning(pattern)
+    
+    # Apply FFT and shift the zero frequency to the center
+    fourier = fftshift(fft2(windowed_pattern))
+    
+    # Get the center point
+    N = pattern.shape[0]
+    center = N // 2
+    
+    # Calculate how many pixels correspond to window_half_size
+    # Since N/2 pixels = max_frequency in the FFT output
+    # and max_frequency = pattern size/2
+    # Therefore window_half_size pixels = (window_half_size * N) / pattern_size
+    pixels = int((window_half_size * N) / (pattern.shape[0]))
+
+    #set pixel value to 0 if it is outside the visibility radius using numpy and mesh 
+    x = np.arange(-N // 2, N // 2)
+    y = np.arange(-N // 2, N // 2)
+    xx, yy = np.meshgrid(x, y)          
+    distance = np.sqrt(xx**2 + yy**2)
+    fourier_eaten = fourier.copy()
+    fourier_eaten[distance > visibility_radius] = 0
+
+    cropped_fourier = fourier[center-pixels:center+pixels, center-pixels:center+pixels] #Original fourier gets cropped
+    cropped_fourier_eaten = fourier_eaten[center-pixels:center+pixels, center-pixels:center+pixels] #Eaten fourier gets cropped
+
+    magnitude_spectrum = np.abs(cropped_fourier) # Magnitude spectrum is the absolute value of the cropped fourier
+    
+    magnitude_spectrum = (magnitude_spectrum - np.min(magnitude_spectrum)) / (  
+        np.max(magnitude_spectrum) - np.min(magnitude_spectrum))    #Increase of contrast
+    
+    return cropped_fourier_eaten,magnitude_spectrum
+
+def compute_inverse_fourier(fourier_spectrum: np.ndarray) -> np.ndarray:
+    """Compute the inverse Fourier transform."""
+    # Unshift and apply inverse FFT
+    inverse = np.real(ifft2(ifftshift(fourier_spectrum)))
+    
+    # Normalize
+    inverse = (inverse - np.min(inverse)) / (np.max(inverse) - np.min(inverse))
+    return inverse
+</document_content>
+</document>
+<document index="9">
+<source>app\utils\input_controls.py</source>
+<document_content>
+import streamlit as st
+import math
+
+def initialize_state():
+    """Initialize session state for all possible patterns"""
+    if 'pattern_params' not in st.session_state:
+        st.session_state.pattern_params = {
+            'frequency': {i: 40.0 for i in range(10)},
+            'angle': {i: i * 45.0 for i in range(10)},
+            'thickness': {i: 0.5 for i in range(10)},
+            'R': {i: 0.0 for i in range(10)},
+            'theta': {i: 0.0 for i in range(10)}
+        }
+
+def handle_value_change(param_type, pattern_idx):
+    """Callback function to handle slider value changes"""
+    key = f"{param_type}_{pattern_idx}"
+    if key in st.session_state:
+        st.session_state.pattern_params[param_type][pattern_idx] = st.session_state[key]
+
+def get_input_controls():
+    initialize_state()
+    
+    # First row: Pattern selection, view mode
+    col1, col2 = st.columns([2, 1])
+    
+    # Create pattern checkboxes
+    with col1:
+        st.write("Select Patterns")
+        pattern_col1, pattern_col2, pattern_col3 = st.columns(3)
+        
+        active_patterns = []
+        
+        with pattern_col1:
+            st.write("Regular Grids")
+            if st.checkbox("Grid A", value=True):
+                active_patterns.append(("Grid A", "Grid", 0))
+            if st.checkbox("Grid B"):
+                active_patterns.append(("Grid B", "Grid", 1))
+            if st.checkbox("Grid C"):
+                active_patterns.append(("Grid C", "Grid", 2))
+            if st.checkbox("Grid D"):
+                active_patterns.append(("Grid D", "Grid", 3))
+        
+        with pattern_col2:
+            st.write("Circle Patterns")
+            if st.checkbox("Circle A"):
+                active_patterns.append(("Circle A", "Circle", 4))
+            if st.checkbox("Circle B"):
+                active_patterns.append(("Circle B", "Circle", 5))
+        
+        with pattern_col3:
+            st.write("Dot Patterns")
+            if st.checkbox("Dot Grid A"):
+                active_patterns.append(("Dot Grid A", "Dot", 6))
+            if st.checkbox("Dot Grid B"):
+                active_patterns.append(("Dot Grid B", "Dot", 7))
+            if st.checkbox("Inverted Dot A"):
+                active_patterns.append(("Inverted Dot A", "InvertedDot", 8))
+    
+    with col2:
+        view_mode = st.radio("View Mode", 
+            ["Pattern & Frequency", "Fourier Analysis"], 
+            horizontal=True)
+    
+    if not active_patterns:
+        active_patterns = [("Grid A", "Grid", 0)]
+    
+    num_patterns = len(active_patterns)
+    slider_cols = st.columns(num_patterns + 2)
+    
+    frequencies = []
+    angles = []
+    thicknesses = []
+    circle_positions = []
+    pattern_types = []
+    
+    for col_idx, (pattern_name, pattern_type, pattern_idx) in enumerate(active_patterns):
+        with slider_cols[col_idx]:
+            st.write(pattern_name)
+            pattern_types.append(pattern_type)
+            
+            # Frequency slider
+            freq_key = f"frequency_{pattern_idx}"
+            freq = st.slider(
+                "Frequency", 10.0, 100.0,
+                value=st.session_state.pattern_params['frequency'][pattern_idx],
+                key=freq_key,
+                on_change=handle_value_change,
+                args=('frequency', pattern_idx),
+                step=0.1
+            )
+            frequencies.append(freq)
+            
+            # Thickness slider
+            thick_key = f"thickness_{pattern_idx}"
+            thickness = st.slider(
+                "Thickness", 0.1, 0.9,
+                value=st.session_state.pattern_params['thickness'][pattern_idx],
+                key=thick_key,
+                on_change=handle_value_change,
+                args=('thickness', pattern_idx),
+                step=0.1
+            )
+            thicknesses.append(thickness)
+            
+            if pattern_type == "Circle":
+                angles.append(0)
+                
+                # R slider
+                r_key = f"R_{pattern_idx}"
+                R = st.slider(
+                    "R", 0.0, 100.0,
+                    value=st.session_state.pattern_params['R'][pattern_idx],
+                    key=r_key,
+                    on_change=handle_value_change,
+                    args=('R', pattern_idx),
+                    step=1.0
+                )
+                
+                # Theta slider
+                theta_key = f"theta_{pattern_idx}"
+                theta = st.slider(
+                    r"$\theta$", -180.0, 180.0,
+                    value=st.session_state.pattern_params['theta'][pattern_idx],
+                    key=theta_key,
+                    on_change=handle_value_change,
+                    args=('theta', pattern_idx),
+                    step=1.0
+                )
+                
+                pos_x = R * math.cos(math.radians(theta))
+                pos_y = R * math.sin(math.radians(theta))
+                circle_positions.append((pos_x, pos_y))
+            else:
+                # Angle slider
+                angle_key = f"angle_{pattern_idx}"
+                angle = st.slider(
+                    "Angle", 0.0, 360.0,
+                    value=st.session_state.pattern_params['angle'][pattern_idx],
+                    key=angle_key,
+                    on_change=handle_value_change,
+                    args=('angle', pattern_idx),
+                    step=1.0
+                )
+                angles.append(angle)
+                circle_positions.append((0, 0))
+    
+    # Visibility and window controls (no persistence needed)
+    with slider_cols[-2]:
+        st.write("Visibility")
+        n_harmonics = st.slider("Number of Harmonics", 1, 10, 4, 1)
+        intensity_threshold = st.slider("Intensity Threshold", 0.0, 0.5, 0.05, 0.01)
+    
+    with slider_cols[-1]:
+        st.write("Window")
+        window_half_size = st.slider("Range", 5.0, 200.0, 100.0, 5.0)
+        visibility_radius = st.slider("Radius", 1.0, 200.0, 100.0, 1.0)
+
+    return (pattern_types, frequencies, angles, thicknesses, circle_positions, 
+            visibility_radius, window_half_size, view_mode, intensity_threshold, n_harmonics)
+</document_content>
+</document>
+<document index="10">
+<source>app\utils\pattern_utils.py</source>
+<document_content>
+import numpy as np
+
+def create_pattern(size: int, frequency: float, angle: float, thickness: float, 
+                  pattern_type: str, circle_position: tuple = (0, 0)) -> np.ndarray:
+    x = np.linspace(-size/2, size/2, size)
+    y = np.linspace(-size/2, size/2, size)
+    X, Y = np.meshgrid(x, y)
+    
+    if 'Concentric' in pattern_type:
+        # Existing concentric circle logic...
+        X_shifted = X - circle_position[0]
+        Y_shifted = Y - circle_position[1]
+        R = np.sqrt(X_shifted**2 + Y_shifted**2)
+        period = size / frequency
+        return (R % period) < (period * (1-thickness))
+    else:
+        theta = np.radians(angle)
+        X_rot = X * np.cos(theta) + Y * np.sin(theta)
+        Y_rot = -X * np.sin(theta) + Y * np.cos(theta)
+        
+        if 'Dot' in pattern_type:
+            pattern = ((X_rot % (size/frequency) < (size/frequency) * (1-thickness)) & 
+                      (Y_rot % (size/frequency) < (size/frequency) * (1-thickness)))
+            return ~pattern if 'Inverted' in pattern_type else pattern
+        else:
+            return X_rot % (size/frequency) < (size/frequency) * (1-thickness)
+</document_content>
+</document>
+<document index="11">
+<source>app\utils\vector_utils.py</source>
+<document_content>
+import streamlit as st
+import plotly.graph_objects as go
+import numpy as np
+from typing import List, Tuple, Dict
+from itertools import product
+
+def calculate_fourier_coefficient(harmonic: int, thickness: float) -> float:
+    """
+    Calculate the Fourier coefficient magnitude for a given harmonic and pattern type.
+    
+    Args:
+        harmonic: The harmonic number
+        thickness: The thickness parameter (between 0 and 1)
+        pattern_type: 'grid' or 'dot'
+    
+    Returns:
+        float: The magnitude of the Fourier coefficient
+    """
+    tau_T = 1-thickness
+    if harmonic == 0:
+        return tau_T  # DC component
+    
+    # For non-zero harmonics
+    return np.abs((1.0 / (np.pi * harmonic)) * np.sin(harmonic * np.pi * tau_T))
+
+def calculate_fourier_coefficient(harmonic: int, thickness: float, inverted: bool = False) -> float:
+    """
+    Calculate the Fourier coefficient magnitude for a given harmonic and pattern type.
+    
+    Args:
+        harmonic: The harmonic number
+        thickness: The thickness parameter (between 0 and 1)
+        inverted: Whether to calculate coefficients for inverted pattern
+    
+    Returns:
+        float: The magnitude of the Fourier coefficient
+    """
+    tau_T = 1-thickness
+    
+    if inverted:
+        # For inverted patterns, we need to flip the DC component and negate other harmonics
+        if harmonic == 0:
+            return 1 - tau_T  # Inverted DC component
+        else:
+            # For non-zero harmonics, phase is shifted by π
+            return -np.abs((1.0 / (np.pi * harmonic)) * np.sin(harmonic * np.pi * tau_T))
+    else:
+        # Original coefficient calculation
+        if harmonic == 0:
+            return tau_T
+        return np.abs((1.0 / (np.pi * harmonic)) * np.sin(harmonic * np.pi * tau_T))
+
+def create_frequency_vectors(pattern_type: str, frequencies: List[float], 
+                           angles: List[float], thicknesses: List[float]) -> List[Dict]:
+    """
+    Create base frequency vectors with proper Fourier coefficients.
+    """
+    vectors = []
+    is_inverted = 'Inverted' in pattern_type
+    
+    for i, (f, theta, thickness) in enumerate(zip(frequencies, angles, thicknesses)):
+        x = f * np.cos(np.radians(theta))
+        y = f * np.sin(np.radians(theta))
+        base_vector = np.array([x, y])
+        
+        if 'Dot' in pattern_type:
+            perp_vector = np.array([-y, x])
+            base_intensity = calculate_fourier_coefficient(1, thickness, is_inverted)
+            
+            vectors.append({
+                'vector': base_vector,
+                'index': i,
+                'intensity': base_intensity,
+                'pattern_type': pattern_type,
+                'direction': 'horizontal',
+                'base_vector': True,
+                'thickness': thickness,
+                'inverted': is_inverted
+            })
+            vectors.append({
+                'vector': perp_vector,
+                'index': i,
+                'intensity': base_intensity,
+                'pattern_type': pattern_type,
+                'direction': 'vertical',
+                'base_vector': True,
+                'thickness': thickness,
+                'inverted': is_inverted
+            })
+        else:
+            base_intensity = calculate_fourier_coefficient(1, thickness, is_inverted)
+            vectors.append({
+                'vector': base_vector,
+                'index': i,
+                'intensity': base_intensity,
+                'pattern_type': pattern_type,
+                'direction': None,
+                'base_vector': True,
+                'thickness': thickness,
+                'inverted': is_inverted
+            })
+    return vectors
+
+def zero_harmonic_Intensity(base_vectors: List[Dict]) -> float:
+    zero_harmonic_I = 1.0
+    for base_vector in base_vectors:
+        zero_harmonic_I *= calculate_fourier_coefficient(0, base_vector['thickness'], 
+                                                       base_vector.get('inverted', False))
+    return zero_harmonic_I
+
+def create_all_vectors(base_vectors: List[Dict], nHarmonics: int,
+                       intensity_ratio_threshold: float) -> List[Dict]:
+    """
+    Create all harmonic vector combinations with correct Fourier coefficients.
+    """
+    all_vectors = []
+    direction_number = len(base_vectors)
+    
+    # Generate all possible combinations of harmonics
+    harmonic_range = range(-nHarmonics, nHarmonics + 1)
+    harmonic_combinations = product(harmonic_range, repeat=direction_number)
+    
+    zero_harmonic_I = zero_harmonic_Intensity(base_vectors)
+
+    for combination in harmonic_combinations:
+        vector = {
+            'vector': np.array([0.0, 0.0]),
+            'coordinates': [],
+            'intensity': 1.0,
+            'pattern_type': "",
+            'direction': None,
+            'base_vector': False
+        }
+        add_vector = True
+        # Calculate combined vector and intensity
+        for harmonic, base_vector in zip(combination, base_vectors):
+            coef = calculate_fourier_coefficient(harmonic, base_vector['thickness'])
+            vector['intensity'] *= coef
+        
+            if vector['intensity'] < intensity_ratio_threshold * zero_harmonic_I:
+                add_vector = False
+                break
+            # Add to position vector
+            vector['vector'] += harmonic * base_vector['vector']
+            vector['coordinates'].append(harmonic)
+
+            vector['pattern_type'] = base_vector['pattern_type']
+        
+        # Check if this is a base vector (only one non-zero harmonic)
+        if vector['coordinates'].count(0) == direction_number - 1:
+            vector['base_vector'] = True
+        if add_vector:    
+            all_vectors.append(vector)
+    
+    return all_vectors
+
+def is_within_visibility_disk(vector: np.ndarray, disk_radius: float) -> bool:
+    return np.linalg.norm(vector) <= disk_radius
+</document_content>
+</document>
+<document index="12">
+<source>app\utils\visualization_handlers.py</source>
+<document_content>
+import numpy as np
+import plotly.graph_objects as go
+import streamlit as st
+from utils.vector_utils import create_frequency_vectors, create_all_vectors, is_within_visibility_disk,zero_harmonic_Intensity
+from utils.pattern_utils import create_pattern
+from utils.fourier_utils import compute_fourier_transform, compute_inverse_fourier
+
+def create_pattern_figure(pattern):
+    fig = go.Figure(data=go.Heatmap(
+        z=1 - pattern,  
+        colorscale='Greys',
+        showscale=False  # Hide colorbar
+    ))
+    fig.update_layout(
+        width=700,  # Increased size
+        height=700,  # Increased size
+        xaxis=dict(showticklabels=False, showgrid=False, scaleanchor="y", scaleratio=1),
+        yaxis=dict(showticklabels=False, showgrid=False),
+        margin=dict(l=0, r=0, t=25, b=0),  # Minimal margins, small top margin for title
+        paper_bgcolor='rgba(0,0,0,0)',  # Transparent background
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def create_spectrum_figure(spectrum, window_half_size,visibility_radius):
+    # Create frequency axes
+    N = spectrum.shape[0]
+    freq_step = (2 * window_half_size) / N
+    frequencies = np.arange(-window_half_size, window_half_size, freq_step)
+    
+    magnitude_spectrum = np.abs(spectrum)
+    magnitude_spectrum = np.log1p(magnitude_spectrum)
+    magnitude_spectrum = (magnitude_spectrum - np.min(magnitude_spectrum)) / (
+        np.max(magnitude_spectrum) - np.min(magnitude_spectrum))
+    
+
+
+    fig = go.Figure(data=go.Heatmap(
+        z=magnitude_spectrum,
+        x=frequencies,
+        y=frequencies,
+        colorscale='Viridis',
+        showscale=False
+    ))
+    
+            # Add visibility disk
+    if visibility_radius < 0.85*window_half_size:
+        theta = np.linspace(0, 2*np.pi, 100)
+        x_circle = visibility_radius * np.cos(theta)
+        y_circle = visibility_radius * np.sin(theta)
+        fig.add_trace(go.Scatter(
+            x=x_circle, y=y_circle,
+            mode='lines',
+            name='Visibility Disk',
+            line=dict(dash='dash', color='red')
+        ))
+    # else:
+    #         fig.add_annotation(
+    #     x=0,  # You can customize where the text appears
+    #     y=-window_half_size+10,
+    #     text="Visibility radius is too large for the current window size.",
+    #     showarrow=False,
+    #     font=dict(size=14, color="red")
+    # )
+
+    fig.update_layout(
+        width=700,
+        height=700,
+        xaxis=dict(
+            title='fx',
+            showgrid=True,
+            scaleanchor="y", 
+            scaleratio=1,
+            gridcolor='rgba(128, 128, 128, 0.2)',
+            zeroline=True,
+            zerolinewidth=2,
+            zerolinecolor='rgba(128, 128, 128, 0.5)'
+        ),
+        yaxis=dict(
+            title='fy',
+            showgrid=True,
+            gridcolor='rgba(128, 128, 128, 0.2)',
+            zeroline=True,
+            zerolinewidth=2,
+            zerolinecolor='rgba(128, 128, 128, 0.5)'
+        ),
+        margin=dict(l=50, r=0, t=25, b=50),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)'
+    )
+    return fig
+
+def get_pattern_color(index, pattern_type):
+    # Define a color palette
+    colors = ['rgb(31, 119, 180)', 'rgb(255, 127, 14)', 
+             'rgb(44, 160, 44)', 'rgb(214, 0, 200)', 
+             'rgb(148, 103, 189)', 'rgb(140, 86, 75)', 
+             'rgb(230, 190, 147)']
+
+    return colors[index]
+
+def create_frequency_vector_figure(all_vectors, base_vectors, visibility_radius, window_half_size):
+    freq_fig = go.Figure()
+    
+    # First, draw harmonic lines of the base vectors.
+    for vector in base_vectors:
+        
+        angle = np.arctan2(vector['vector'][1], vector['vector'][0])
+        length = window_half_size * 2  # Make lines span the entire window
+        
+        x1 = -length * np.cos(angle)
+        y1 = -length * np.sin(angle)
+        x2 = length * np.cos(angle)
+        y2 = length * np.sin(angle)
+        
+        color = get_pattern_color(vector['index'], vector['pattern_type'])
+
+        # Add the line
+        freq_fig.add_trace(go.Scatter(
+            x=[x1, x2],
+            y=[y1, y2],
+            mode='lines',
+            line=dict(color=color, width=3),  # Very thin lines
+            opacity=1,  
+            hoverinfo='skip'
+        ))
+    
+    # Then add vector points
+    x_coords = []
+    y_coords = []
+    labels = []
+    hover_texts = []
+    colors = []
+    zero_harmonic_I = zero_harmonic_Intensity(base_vectors)
+
+    for vector in all_vectors:
+        if (not (is_within_visibility_disk(vector['vector'], visibility_radius)) and  vector['base_vector'] == False):
+            continue
+
+        x_coords.append(vector['vector'][0])
+        y_coords.append(vector['vector'][1])
+        labels.append(str(tuple(vector['coordinates'])))  # Only coordinates for text display
+        hover_texts.append(f"Intensity: {vector['intensity']/zero_harmonic_I:.2f}")  # Intensity for hover
+        
+        # Create red color with intensity-based opacity
+        if vector['base_vector']:
+            color = f'rgba(0, 0, 0, {vector["intensity"]/zero_harmonic_I+0.001})'
+        else:
+            color = f'rgba(255, 0, 0, {vector["intensity"]/zero_harmonic_I+0.001})'
         colors.append(color)
 
     # Add vector points

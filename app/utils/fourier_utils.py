@@ -19,7 +19,7 @@ def compute_fourier_transform(pattern: np.ndarray, window_half_size: float = 100
     """
     # Apply Hanning window to reduce edge effects
     windowed_pattern = apply_2d_hanning(pattern)
-    
+    original_fourier = fftshift(fft2(pattern))
     # Apply FFT and shift the zero frequency to the center
     fourier = fftshift(fft2(windowed_pattern))
     
@@ -38,7 +38,7 @@ def compute_fourier_transform(pattern: np.ndarray, window_half_size: float = 100
     y = np.arange(-N // 2, N // 2)
     xx, yy = np.meshgrid(x, y)          
     distance = np.sqrt(xx**2 + yy**2)
-    fourier_eaten = fourier.copy()
+    fourier_eaten = original_fourier.copy()
     fourier_eaten[distance > visibility_radius] = 0
 
     cropped_fourier = fourier[center-pixels:center+pixels, center-pixels:center+pixels] #Original fourier gets cropped
@@ -49,7 +49,7 @@ def compute_fourier_transform(pattern: np.ndarray, window_half_size: float = 100
     magnitude_spectrum = (magnitude_spectrum - np.min(magnitude_spectrum)) / (  
         np.max(magnitude_spectrum) - np.min(magnitude_spectrum))    #Increase of contrast
     
-    return cropped_fourier_eaten,magnitude_spectrum
+    return cropped_fourier_eaten,magnitude_spectrum,
 
 def compute_inverse_fourier(fourier_spectrum: np.ndarray) -> np.ndarray:
     """Compute the inverse Fourier transform."""
