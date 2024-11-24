@@ -149,8 +149,8 @@ def get_input_controls():
     # Visibility and window controls (no persistence needed)
     with slider_cols[-2]:
         st.write("Visibility")
-        n_harmonics = st.slider("Number of Harmonics", 1, 10, 4, 1)
-        intensity_threshold = st.slider("Intensity Threshold", 0.0, 0.5, 0.05, 0.01)
+        n_harmonics = st.slider("Number of Harmonics", 1, 10, 2, 1)
+        intensity_threshold = st.slider("Intensity Threshold", 0.0, 0.5, 0.12, 0.01)
     
     with slider_cols[-1]:
         st.write("Window")
