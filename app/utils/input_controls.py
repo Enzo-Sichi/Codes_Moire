@@ -34,13 +34,13 @@ def get_input_controls():
         with pattern_col1:
             st.write("Regular Grids")
             if st.checkbox("Grid A", value=True):
-                active_patterns.append(("Grid A", "Grid", 0))
+                active_patterns.append(("Line Grid A", "Grid", 0))
             if st.checkbox("Grid B"):
-                active_patterns.append(("Grid B", "Grid", 1))
+                active_patterns.append(("Line Grid B", "Grid", 1))
             if st.checkbox("Grid C"):
-                active_patterns.append(("Grid C", "Grid", 2))
+                active_patterns.append(("Line Grid C", "Grid", 2))
             if st.checkbox("Grid D"):
-                active_patterns.append(("Grid D", "Grid", 3))
+                active_patterns.append(("Line Grid D", "Grid", 3))
         
         with pattern_col2:
             st.write("Circle Patterns")

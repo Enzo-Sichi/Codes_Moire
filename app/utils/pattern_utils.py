@@ -6,7 +6,7 @@ def create_pattern(size: int, frequency: float, angle: float, thickness: float,
     y = np.linspace(-size/2, size/2, size)
     X, Y = np.meshgrid(x, y)
     
-    if 'Concentric' in pattern_type:
+    if 'Circle' in pattern_type:
         # Existing concentric circle logic...
         X_shifted = X - circle_position[0]
         Y_shifted = Y - circle_position[1]

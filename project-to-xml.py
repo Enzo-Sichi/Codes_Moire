@@ -37,7 +37,8 @@ def create_xml_from_project(project_path):
 
 # Usage
 if __name__ == "__main__":
-    project_path = input("Enter the path to your project directory: ")
+    # project_path = input("Enter the path to your project directory: ")
+    project_path = "C:/Users/enzo/Documents/01_Enzo/04_Moire/Codes_Moire/Moire_streamlit_app"
     output_path = "project_dump.xml"
     
     xml_content = create_xml_from_project(project_path)
@@ -46,3 +47,4 @@ if __name__ == "__main__":
         f.write(xml_content)
         
     print(f"XML dump created at: {output_path}")
+

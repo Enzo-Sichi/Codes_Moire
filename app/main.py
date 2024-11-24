@@ -84,8 +84,9 @@ def main():
 
     st.write("")  # Add some space
     st.write("")
+
     # Explanation section below the visualizations
-    with st.expander("How to Use This App"):
+    with st.expander("How to Use This App", icon="🚨"):
         st.markdown("""
         This application helps visualize and analyze grid patterns and their frequency components. Here's how to use it:
 
